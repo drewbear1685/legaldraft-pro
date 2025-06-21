@@ -428,6 +428,7 @@
                         <option value="opinion-letter">Opinion Letter</option>
                         <option value="joinder-agreement">Joinder Agreement</option>
                         <option value="assumption-agreement">Assumption Agreement</option>
+                        <option value="signature-pages">Signature Page Packet</option>
                         <option value="custom">Custom Document</option>
                     </select>
                 </div>
@@ -462,7 +463,7 @@
                     <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
                     <button class="toolbar-btn" onclick="insertDefinition()">Def</button>
                     <button class="toolbar-btn" onclick="updateReferences()">Refs</button>
-                    <button class="toolbar-btn" onclick="checkConsistency()">Check</button>
+                    <button class="toolbar-btn" onclick="generateSignaturePages()">📝 Sig Pages</button>
                 </div>
 
                 <div class="editor-container">
@@ -803,12 +804,86 @@ Please generate a professional, legally formatted document. Include proper heade
             alert('Cross-reference update feature coming soon! This will automatically update all paragraph and section references.');
         }
 
-        function checkConsistency() {
+        function generateCustomTemplate() {
+            return `[DOCUMENT TITLE]
+
+[Insert your custom document content here. The AI will help you draft based on your specific instructions and uploaded precedent documents.]
+
+Key sections to consider:
+• Parties and Background
+• Definitions
+• Main Provisions
+• Representations and Warranties
+• Covenants
+• Events of Default (if applicable)
+• Miscellaneous Provisions
+• Signature Blocks
+
+[The AI will customize this based on your instructions]`;
+        }
+
+        // Signature page generator
+        function generateSignaturePages() {
             const content = document.getElementById('documentEditor').value;
-            const definedTerms = content.match(/"([^"]+)"/g) || [];
-            const uniqueTerms = [...new Set(definedTerms)];
             
-            alert(`Found ${uniqueTerms.length} defined terms:\n${uniqueTerms.join(', ')}\n\nConsistency check complete!`);
+            // Extract parties from document content
+            const parties = extractPartiesFromDocument(content);
+            
+            if (parties.length === 0) {
+                const manualParties = prompt('Enter party names separated by commas:\n(e.g., "ABC Corp, XYZ LLC, Wells Fargo Bank")');
+                if (manualParties) {
+                    const partyList = manualParties.split(',').map(p => p.trim());
+                    generateSignaturePagesFromList(partyList);
+                }
+            } else {
+                generateSignaturePagesFromList(parties);
+            }
+        }
+
+        function extractPartiesFromDocument(content) {
+            // Simple party extraction - look for common patterns
+            const parties = [];
+            
+            // Look for "between X and Y" patterns
+            const betweenMatch = content.match(/between\s+([^,]+),?\s+and\s+([^,\n]+)/i);
+            if (betweenMatch) {
+                parties.push(betweenMatch[1].trim(), betweenMatch[2].trim());
+            }
+            
+            // Look for "by and among" patterns
+            const amongMatch = content.match(/by and among\s+([^,]+),\s*([^,]+),?\s*and\s+([^,\n]+)/i);
+            if (amongMatch) {
+                parties.push(amongMatch[1].trim(), amongMatch[2].trim(), amongMatch[3].trim());
+            }
+            
+            return parties;
+        }
+
+        function generateSignaturePagesFromList(parties) {
+            let signaturePages = `SIGNATURE PAGE PACKET\n\n`;
+            
+            parties.forEach((party, index) => {
+                signaturePages += `====================================\n`;
+                signaturePages += `SIGNATURE PAGE ${index + 1} - ${party.toUpperCase()}\n`;
+                signaturePages += `====================================\n\n`;
+                signaturePages += `${party}\n\n`;
+                signaturePages += `By: _________________________\n`;
+                signaturePages += `Name: [Name]\n`;
+                signaturePages += `Title: [Title]\n\n`;
+                signaturePages += `Date: _______________\n\n\n`;
+            });
+            
+            signaturePages += `====================================\n`;
+            signaturePages += `EXECUTION INSTRUCTIONS:\n`;
+            signaturePages += `====================================\n\n`;
+            signaturePages += `• Print each signature page separately\n`;
+            signaturePages += `• Fill in all names and titles before signing\n`;
+            signaturePages += `• Use execution date of main agreement\n`;
+            signaturePages += `• Collect from all ${parties.length} parties\n`;
+            signaturePages += `• Attach to final executed agreement\n`;
+            
+            document.getElementById('documentEditor').value = signaturePages;
+            updateWordCount();
         }
 
         // Export functions
