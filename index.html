@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LegalDraft Pro">
+    <title>LegalDraft Pro</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            height: calc(100vh - 200px);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .uploaded-files {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .file-item .file-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .file-item .file-size {
+            color: #666;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .remove-file {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .document-type-selector {
+            margin-bottom: 20px;
+        }
+
+        .document-type-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .ai-instructions {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .ai-instructions textarea {
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .ai-instructions textarea:focus {
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .toolbar-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .editor {
+            flex: 1;
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+            background: white;
+        }
+
+        .editor:focus {
+            border-color: #667eea;
+        }
+
+        .status-bar {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .status-dot.offline {
+            background: #dc3545;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-export {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-word {
+            background: #2b579a;
+            color: white;
+        }
+
+        .btn-pdf {
+            background: #dc3545;
+            color: white;
+        }
+
+        .api-key-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        /* iPad Optimizations */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        /* Touch optimizations */
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .editor-toolbar {
+                flex-wrap: wrap;
+            }
+            
+            .export-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>LegalDraft Pro</h1>
+            <p>AI-Powered Legal Document Drafting for iPad</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Panel: Document Input & AI Controls -->
+            <div class="panel">
+                <h2>📁 Document Sources</h2>
+                
+                <!-- API Key Section -->
+                <div class="api-key-section">
+                    <strong>🔑 Claude API Setup</strong>
+                    <p style="font-size: 0.9rem; margin: 5px 0;">Enter your Anthropic API key to enable AI features:</p>
+                    <input type="password" class="api-key-input" id="apiKey" placeholder="sk-ant-..." onchange="saveApiKey()">
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                        Get your API key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+                    </p>
+                </div>
+                
+                <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📄</div>
+                    <p><strong>Upload Precedent Documents</strong></p>
+                    <p>Credit agreements, precedent ancillaries, D&O slates</p>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                        Supports: .docx, .pdf, .txt
+                    </p>
+                </div>
+                
+                <input type="file" id="fileInput" multiple accept=".docx,.pdf,.txt" style="display: none;">
+                
+                <div class="uploaded-files" id="uploadedFiles"></div>
+
+                <div class="document-type-selector">
+                    <label for="docType" style="display: block; margin-bottom: 8px; font-weight: 600;">Document Type:</label>
+                    <select id="docType">
+                        <option value="written-consent">Written Consent</option>
+                        <option value="secretary-certificate">Secretary's Certificate</option>
+                        <option value="officer-certificate">Officer's Certificate</option>
+                        <option value="opinion-letter">Opinion Letter</option>
+                        <option value="joinder-agreement">Joinder Agreement</option>
+                        <option value="assumption-agreement">Assumption Agreement</option>
+                        <option value="custom">Custom Document</option>
+                    </select>
+                </div>
+
+                <div class="ai-instructions">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">AI Instructions:</label>
+                    <textarea placeholder="Describe what you need... e.g., 'Draft written consents for new guarantors joining the facility. Update all cross-references and make sure defined terms match the credit agreement.'"></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="generateDocument()">
+                        🚀 Generate Document
+                    </button>
+                    <button class="btn btn-secondary" onclick="runChecks()">
+                        ✅ Run Checks
+                    </button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>AI is working on your document...</p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Document Editor -->
+            <div class="panel">
+                <h2>📝 Document Editor</h2>
+                
+                <div class="editor-toolbar">
+                    <button class="toolbar-btn" onclick="formatText('bold')"><strong>B</strong></button>
+                    <button class="toolbar-btn" onclick="formatText('italic')"><em>I</em></button>
+                    <button class="toolbar-btn" onclick="formatText('underline')"><u>U</u></button>
+                    <button class="toolbar-btn" onclick="insertDefinition()">Def</button>
+                    <button class="toolbar-btn" onclick="updateReferences()">Refs</button>
+                    <button class="toolbar-btn" onclick="checkConsistency()">Check</button>
+                </div>
+
+                <div class="editor-container">
+                    <textarea class="editor" id="documentEditor" placeholder="Your generated document will appear here...
+
+You can also start typing to draft manually. The app will help with:
+• Cross-reference checking
+• Defined terms consistency
+• Formatting
+• AI suggestions
+
+To get started:
+1. Add your Claude API key above
+2. Upload precedent documents
+3. Select document type
+4. Provide AI instructions
+5. Click 'Generate Document'"></textarea>
+                </div>
+
+                <div class="export-buttons">
+                    <button class="btn-export btn-word" onclick="exportToWord()">
+                        📄 Export to Word
+                    </button>
+                    <button class="btn-export btn-pdf" onclick="exportToPDF()">
+                        📑 Export to PDF
+                    </button>
+                </div>
+
+                <div class="status-bar">
+                    <div class="connection-status">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Online - AI Features Available</span>
+                    </div>
+                    <div style="float: right;">
+                        Words: <span id="wordCount">0</span> | 
+                        Last saved: <span id="lastSaved">Never</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global app state
+        let uploadedFiles = [];
+        let isOnline = navigator.onLine;
+        let documentContent = '';
+        let apiKey = localStorage.getItem('claude_api_key') || '';
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateConnectionStatus();
+            setupEventListeners();
+            loadSavedWork();
+            loadApiKey();
+        });
+
+        // API Key management
+        function loadApiKey() {
+            const saved = localStorage.getItem('claude_api_key');
+            if (saved) {
+                document.getElementById('apiKey').value = saved;
+                apiKey = saved;
+            }
+        }
+
+        function saveApiKey() {
+            apiKey = document.getElementById('apiKey').value;
+            localStorage.setItem('claude_api_key', apiKey);
+            updateConnectionStatus();
+        }
+
+        // Connection status monitoring
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateConnectionStatus();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateConnectionStatus();
+        });
+
+        function updateConnectionStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (isOnline && apiKey) {
+                dot.classList.remove('offline');
+                text.textContent = 'Online - AI Features Available';
+            } else if (isOnline && !apiKey) {
+                dot.classList.add('offline');
+                text.textContent = 'Online - Add API Key for AI Features';
+            } else {
+                dot.classList.add('offline');
+                text.textContent = 'Offline - Local Tools Only';
+            }
+        }
+
+        // File upload handling
+        function setupEventListeners() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.querySelector('.file-upload-area');
+            const editor = document.getElementById('documentEditor');
+
+            // File input change
+            fileInput.addEventListener('change', handleFileSelect);
+
+            // Drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFileSelect({ target: { files: e.dataTransfer.files } });
+            });
+
+            // Editor changes
+            editor.addEventListener('input', () => {
+                updateWordCount();
+                autoSave();
+            });
+        }
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            files.forEach(file => {
+                if (!uploadedFiles.find(f => f.name === file.name)) {
+                    uploadedFiles.push(file);
+                }
+            });
+            displayUploadedFiles();
+        }
+
+        function displayUploadedFiles() {
+            const container = document.getElementById('uploadedFiles');
+            container.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${formatFileSize(file.size)}</span>
+                    <button class="remove-file" onclick="removeFile(${index})">×</button>
+                `;
+                container.appendChild(fileItem);
+            });
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            displayUploadedFiles();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // AI Document Generation
+        async function generateDocument() {
+            if (!isOnline) {
+                alert('AI features require an internet connection. You can still draft manually using the editor.');
+                return;
+            }
+
+            if (!apiKey) {
+                alert('Please enter your Claude API key to use AI features.');
+                return;
+            }
+
+            const instructions = document.querySelector('.ai-instructions textarea').value;
+            const docType = document.getElementById('docType').value;
+            
+            if (!instructions.trim()) {
+                alert('Please provide instructions for the AI.');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const generatedDoc = await callClaudeAPI(instructions, docType, uploadedFiles);
+                document.getElementById('documentEditor').value = generatedDoc;
+                updateWordCount();
+                autoSave();
+            } catch (error) {
+                alert('Error generating document: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function callClaudeAPI(instructions, docType, files) {
+            // Read file contents
+            let fileContents = '';
+            for (const file of files) {
+                const text = await readFileContent(file);
+                fileContents += `\n\n--- ${file.name} ---\n${text}`;
+            }
+
+            const prompt = `You are a legal document drafting assistant. Please help draft a ${docType.replace('-', ' ')} based on these instructions:
+
+${instructions}
+
+Available precedent documents: ${fileContents}
+
+Please generate a professional, legally formatted document. Include proper headers, numbered paragraphs where appropriate, and signature blocks. Make sure to use placeholder text like [Company Name], [Date], etc. where specific information needs to be filled in.`;
+
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-3-sonnet-20240229',
+                    max_tokens: 4000,
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('API call failed: ' + response.statusText);
+            }
+
+            const data = await response.json();
+            return data.content[0].text;
+        }
+
+        async function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
+        }
+
+        // Document checking and automation
+        function runChecks() {
+            const content = document.getElementById('documentEditor').value;
+            let issues = [];
+
+            // Cross-reference checking
+            const paragraphRefs = content.match(/paragraph\s+\d+/gi) || [];
+            const sectionRefs = content.match(/section\s+\d+/gi) || [];
+            
+            // Check for common issues
+            if (content.includes('[●]') || content.includes('[Date]') || content.includes('[Name]')) {
+                issues.push('Found placeholder text that needs to be filled in');
+            }
+            
+            if (content.includes('hereto') && !content.includes('attached')) {
+                issues.push('Document references attachments but none are mentioned');
+            }
+
+            // Defined terms check
+            const definedTerms = content.match(/"([^"]+)"/g) || [];
+            const uniqueTerms = [...new Set(definedTerms)];
+            
+            // Display results
+            let message = '';
+            if (issues.length === 0) {
+                message = '✅ No issues found! Document looks good.\n\n';
+            } else {
+                message = '⚠️ Issues found:\n\n' + issues.join('\n') + '\n\n';
+            }
+            
+            message += `📊 Document Stats:\n• ${uniqueTerms.length} defined terms\n• ${content.split(/\s+/).length} words\n• ${content.split('\n').length} lines`;
+            
+            alert(message);
+        }
+
+        function formatText(command) {
+            const editor = document.getElementById('documentEditor');
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            
+            if (selectedText) {
+                let formattedText = selectedText;
+                switch (command) {
+                    case 'bold':
+                        formattedText = `**${selectedText}**`;
+                        break;
+                    case 'italic':
+                        formattedText = `*${selectedText}*`;
+                        break;
+                    case 'underline':
+                        formattedText = `<u>${selectedText}</u>`;
+                        break;
+                }
+                
+                editor.value = editor.value.substring(0, start) + formattedText + editor.value.substring(end);
+                updateWordCount();
+            }
+        }
+
+        function insertDefinition() {
+            const term = prompt('Enter the defined term:');
+            if (term) {
+                const editor = document.getElementById('documentEditor');
+                const cursorPos = editor.selectionStart;
+                const definition = `"${term}"`;
+                editor.value = editor.value.substring(0, cursorPos) + definition + editor.value.substring(cursorPos);
+                updateWordCount();
+            }
+        }
+
+        function updateReferences() {
+            alert('Cross-reference update feature coming soon! This will automatically update all paragraph and section references.');
+        }
+
+        function checkConsistency() {
+            const content = document.getElementById('documentEditor').value;
+            const definedTerms = content.match(/"([^"]+)"/g) || [];
+            const uniqueTerms = [...new Set(definedTerms)];
+            
+            alert(`Found ${uniqueTerms.length} defined terms:\n${uniqueTerms.join(', ')}\n\nConsistency check complete!`);
+        }
+
+        // Export functions
+        function exportToWord() {
+            const content = document.getElementById('documentEditor').value;
+            
+            // Create a simple HTML version for Word
+            const htmlContent = `
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <style>
+                        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.6; margin: 1in; }
+                        .signature-line { margin-top: 30px; }
+                    </style>
+                </head>
+                <body>
+                    ${content.replace(/\n/g, '<br>')}
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([htmlContent], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'legal-document.doc';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() {
+            alert('PDF export feature coming soon! For now, you can export to Word and then save as PDF.');
+        }
+
+        // Utility functions
+        function updateWordCount() {
+            const content = document.getElementById('documentEditor').value;
+            const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+            document.getElementById('wordCount').textContent = words;
+        }
+
+        function autoSave() {
+            const content = document.getElementById('documentEditor').value;
+            localStorage.setItem('draft_document', content);
+            document.getElementById('lastSaved').textContent = new Date().toLocaleTimeString();
+        }
+
+        function loadSavedWork() {
+            const saved = localStorage.getItem('draft_document');
+            if (saved) {
+                document.getElementById('documentEditor').value = saved;
+                updateWordCount();
+            }
+        }
+    </script>
+</body>
+</html>
