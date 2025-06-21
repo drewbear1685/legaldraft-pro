@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
     }
     
     try {
-        const { apiKey, messages, model = 'claude-3-sonnet-20240229', max_tokens = 4000 } = JSON.parse(event.body);
+        const { apiKey, messages, model = 'claude-3-5-sonnet-20241022', max_tokens = 4000 } = JSON.parse(event.body);
         
         if (!apiKey) {
             return {
