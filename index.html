@@ -711,7 +711,7 @@ Please generate a professional, legally formatted document. Include proper heade
 
             try {
                 // Use Netlify function instead of direct API call
-                const response = await fetch('/.netlify/functions/claude', {
+                const response = await fetch('https://legaldraft-pro-production.up.railway.app/api/claude', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
