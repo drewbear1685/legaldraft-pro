@@ -710,22 +710,22 @@ Available precedent documents: ${fileContents}
 Please generate a professional, legally formatted document. Include proper headers, numbered paragraphs where appropriate, and signature blocks. Make sure to use placeholder text like [Company Name], [Date], etc. where specific information needs to be filled in.`;
 
             try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                // Use Netlify function instead of direct API call
+                const response = await fetch('/.netlify/functions/claude', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': apiKey,
-                        'anthropic-version': '2023-06-01'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'claude-3-sonnet-20240229',
-                        max_tokens: 4000,
+                        apiKey: apiKey,
                         messages: [
                             {
                                 role: 'user',
                                 content: prompt
                             }
-                        ]
+                        ],
+                        model: 'claude-3-sonnet-20240229',
+                        max_tokens: 4000
                     })
                 });
 
